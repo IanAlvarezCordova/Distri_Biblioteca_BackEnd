@@ -20,6 +20,11 @@ export class PrestamoController {
     async findOne(@Param('id', ParseIntPipe) id: number): Promise<Prestamo> {
         return await this.prestamoService.findOne(id);
     }
+    
+    @Get('usuario/:id')
+    async findByUsuario(@Param('id', ParseIntPipe) id: number): Promise<Prestamo[]> {
+        return await this.prestamoService.findByUsuario(id);
+    }
 
     @Auth(Role.USER)
     @Post()

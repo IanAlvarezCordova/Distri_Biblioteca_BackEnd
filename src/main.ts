@@ -16,8 +16,8 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    /* origin: ['http://localhost:5173', 'https://frontend-vehiculos-production.up.railway.app'], */
-    origin: ['*'],
+     origin: ['http://localhost:5173', 'https://frontend-vehiculos-production.up.railway.app'], 
+    //origin: ['*'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

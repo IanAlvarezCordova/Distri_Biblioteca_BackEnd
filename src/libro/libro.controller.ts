@@ -1,4 +1,4 @@
-// src/libro/libro.controller.ts
+// src/libro/libro.controller.ts (actualizado)
 import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, HttpCode } from '@nestjs/common';
 import { LibroService } from './libro.service';
 import { Libro } from './libro.entity';
@@ -13,6 +13,12 @@ export class LibroController {
     @Get()
     async findAll(): Promise<Libro[]> {
         return await this.libroService.findAll();
+    }
+
+    @Get('dashboard')
+    async getDashboardStats() {
+        
+        return await this.libroService.getDashboardStats();
     }
 
     @Get(':id')
@@ -41,4 +47,8 @@ export class LibroController {
     async delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
         return await this.libroService.delete(id);
     }
+
+    
+ 
+    
 }
