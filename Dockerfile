@@ -1,19 +1,23 @@
-FROM node:18
+# Usa una imagen base oficial de Node.js
+FROM node:18-alpine
 
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /usr/src/app
 
-# Copiar solo los archivos de configuración primero
+# Copia los archivos de dependencias primero para aprovechar la caché
 COPY package*.json ./
 
-# Instalar dependencias (esto compilará bcrypt dentro del contenedor)
-RUN npm install
+# Instala solo dependencias de producción
+RUN npm install --production
 
-# Copiar el resto del código después de instalar dependencias
+# Copia el resto de tu aplicación al contenedor
 COPY . .
 
-# Construir la aplicación
+# Compila el proyecto NestJS (usa tsconfig)
 RUN npm run build
 
+# Expone el puerto que usará la app (Render detecta esto automáticamente)
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+# Comando que ejecuta la app en modo producción
+CMD ["npm", "run", "start:prod"]

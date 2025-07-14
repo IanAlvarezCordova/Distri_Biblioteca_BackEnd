@@ -35,6 +35,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(parseInt(process.env.PORT || '3000'));
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  logger.log(`🚀 Aplicación escuchando en el puerto ${port}`);
 }
 bootstrap();
