@@ -5,12 +5,14 @@ import { RegisterDto } from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { AppLogger } from 'src/common/logger.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usuarioService: UsuarioService,
         private readonly jwtService: JwtService,
+        private readonly logger: AppLogger,
     ) {}
 
     async register({ nombre, apellido, email, password }: RegisterDto) {
@@ -30,16 +32,27 @@ export class AuthService {
     }
 
     async login({ email, password }: LoginDto) {
+        // Buscar usuario por email
         const user = await this.usuarioService.findByEmailWithPassword(email);
         if (!user) {
-            throw new UnauthorizedException('Email es incorrecto');
-        }
+            this.logger.warn(`Intento de login fallido: usuario con email ${email} no encontrado`);
+            throw new UnauthorizedException('Email Incorrecto o no existe');
+          }
+        // Verificar la contraseña
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new UnauthorizedException('Contraseña es incorrecta');
-        }
+            this.logger.warn(`Intento de login fallido: contraseña incorrecta para ${email}`);
+            throw new UnauthorizedException('Credenciales Incorrectas');
+          }
+
+           // Actualizar ultimo_acceso
+           await this.usuarioService.actualizarUltimoAcceso(user.id);
+
+           
+
         const payload = { id: user.id, email: user.email, roles: user.roles.map(r => r.nombre) };
         const token = await this.jwtService.signAsync(payload);
+        this.logger.log(`Login exitoso para: ${email}`);
         return { token, email };
     }
 

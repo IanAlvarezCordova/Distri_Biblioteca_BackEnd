@@ -41,6 +41,11 @@ export class UsuarioService {
             relations: ['roles']});
     }
 
+    async actualizarUltimoAcceso(id: number): Promise<void> {
+        await this.usuarioRepository.update(id, { ultimo_acceso: new Date() });
+      }
+      
+
     async findByEmailWithPassword(email: string): Promise<Usuario | null> {
         return this.usuarioRepository.findOne({
             where: { email },

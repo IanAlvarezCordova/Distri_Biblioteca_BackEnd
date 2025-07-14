@@ -1,5 +1,5 @@
 // src/auth/auth.controller.ts
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.services';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -8,6 +8,7 @@ import { Role } from '../common/enum/rol.enum';
 import { ActiveUser } from '../common/decorators/active-user.decorator';
 import { UserActiveInterface } from '../common/interfaces/user-active.interface';
 import { AppLogger } from '../common/logger.service';
+
 
 @Controller('auth')
 export class AuthController {
@@ -23,15 +24,10 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200) // Respuesta 200 OK para login exitoso
   async login(@Body() loginDto: LoginDto) {
-    try {
-      const result = await this.authService.login(loginDto);
-      this.logger.log(`Login exitoso para: ${loginDto.email}`);
-      return result;
-    } catch (error) {
-      this.logger.error(`Login fallido para ${loginDto.email}: ${error.message}`);
-      throw error;
-    }
+    this.logger.log(`Solicitud de login para: ${loginDto.email}`);
+    return this.authService.login(loginDto);
   }
 
   @Get('profile')
