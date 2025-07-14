@@ -1,18 +1,28 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { AppLogger } from './common/logger.service';
-import * as morgan from 'morgan'; // Cambiar a importación de estilo CommonJS
+import * as morgan from 'morgan';
+const requestIp = require('request-ip'); // ✅ Importar así si da error con import
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const logger = app.get(AppLogger); // Obtener el logger
+  const logger = app.get(AppLogger);
 
-  // Configurar Morgan para registrar logs de acceso
   app.use(
-    morgan('combined', {
+    morgan((tokens, req, res) => {
+      const ip = requestIp.getClientIp(req) || 'IP_DESCONOCIDA';
+
+      return [
+        `[${ip}]`, // IP real
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens['response-time'](req, res) + 'ms',
+        `"${tokens['user-agent'](req, res)}"`,
+      ].join(' ');
+    }, {
       stream: {
         write: (message: string) => logger.log(message.trim()),
       },
@@ -27,7 +37,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new GlobalExceptionFilter(logger)); // Registrar el filtro
+  app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
   app.enableCors({
     origin: ['*'],

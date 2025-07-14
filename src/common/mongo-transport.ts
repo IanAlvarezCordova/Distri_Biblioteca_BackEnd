@@ -1,4 +1,3 @@
-// src/common/mongo-transport.ts
 import * as winstonTransport from 'winston-transport';
 import { connect, model, Schema } from 'mongoose';
 
@@ -10,13 +9,14 @@ const logSchema = new Schema({
   method: String,
   statusCode: Number,
   stack: String,
+  ip: String, // <-- Nuevo campo
   createdAt: { type: Date, expires: '14d', default: Date.now },
 });
+
 const LogModel = model('Log', logSchema);
 
 export class MongoTransport extends winstonTransport {
   private isConnected = false;
-
 
   constructor(opts: { mongoUri: string }) {
     super();
@@ -28,15 +28,12 @@ export class MongoTransport extends winstonTransport {
       .catch((err) => console.error('Error conectando a MongoDB:', err));
   }
 
-  
-
   async log(info: any, callback: () => void) {
-
     if (!this.isConnected) {
       console.warn('Aún no conectado a MongoDB. Log ignorado temporalmente.');
-      return callback(); // Evitar cuelgues
+      return callback();
     }
-    
+  
     try {
       let logData = {
         timestamp: info.timestamp,
@@ -46,10 +43,11 @@ export class MongoTransport extends winstonTransport {
         method: '',
         statusCode: null as number | null,
         stack: '',
+        ip: '',
         createdAt: new Date(),
       };
-
-      // Manejar metadatos de errores (GlobalExceptionFilter)
+  
+      // Extraer metadatos (GlobalExceptionFilter)
       if (info[Symbol.for('splat')]) {
         const meta = info[Symbol.for('splat')][0];
         if (meta && typeof meta === 'object') {
@@ -57,23 +55,26 @@ export class MongoTransport extends winstonTransport {
           logData.method = meta.method || logData.method;
           logData.statusCode = meta.statusCode || logData.statusCode;
           logData.stack = meta.stack || logData.stack;
+          logData.ip = meta.ip || logData.ip;
         }
       }
-
-      // Parsear logs de Morgan
-      if (logData.level === 'info' && logData.message.includes('HTTP')) {
-        const morganMatch = logData.message.match(/"([^"]+) ([^"]+) HTTP[^"]+" (\d+)/);
-        if (morganMatch) {
-          logData.method = morganMatch[1]; // Ej: "POST"
-          logData.url = morganMatch[2];    // Ej: "/auth/login"
-          logData.statusCode = parseInt(morganMatch[3], 10); // Ej: 201
+  
+      // Parsear logs de acceso (de Morgan)
+      if (logData.message.startsWith('[')) {
+        const parts = logData.message.split(' ');
+        if (parts.length >= 4) {
+          logData.ip = parts[0].slice(1, -1); // Extrae la IP sin corchetes
+          logData.method = parts[1]; // Método HTTP (ej. POST)
+          logData.url = parts[2]; // URL (ej. /auth/login)
+          logData.statusCode = parseInt(parts[3], 10); // Código de estado (ej. 200)
         }
       }
-
+  
       await LogModel.create(logData);
     } catch (err) {
       console.error('Error al guardar log en MongoDB:', err);
     }
+  
     callback();
-    }
   }
+}
