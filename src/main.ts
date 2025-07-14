@@ -1,11 +1,23 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { parse } from 'path';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { AppLogger } from './common/logger.service';
+import * as morgan from 'morgan'; // Cambiar a importación de estilo CommonJS
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = app.get(AppLogger); // Obtener el logger
 
+  // Configurar Morgan para registrar logs de acceso
+  app.use(
+    morgan('combined', {
+      stream: {
+        write: (message: string) => logger.log(message.trim()),
+      },
+    }),
+  );
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -15,13 +27,13 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalFilters(new GlobalExceptionFilter(logger)); // Registrar el filtro
+
   app.enableCors({
-     origin: ['http://localhost:5173', 'https://frontend-vehiculos-production.up.railway.app'], 
-    //origin: ['*'],
+    origin: ['*'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
-  
 
   await app.listen(parseInt(process.env.PORT || '3000'));
 }

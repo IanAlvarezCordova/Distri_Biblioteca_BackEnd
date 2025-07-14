@@ -1,4 +1,5 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+// src/app.module.ts
+import { Module, OnModuleInit, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -12,6 +13,7 @@ import { LibroModule } from './libro/libro.module';
 import { PrestamoModule } from './prestamo/prestamo.module';
 import { DevolucionModule } from './devolucion/devolucion.module';
 import { RolService } from './rol/rol.service';
+import { LoggerModule } from './common/logger.module';
 
 @Module({
   imports: [
@@ -35,9 +37,10 @@ import { RolService } from './rol/rol.service';
             : null,
       },
     }),
+    LoggerModule,
     AuthModule,
     UsuarioModule,
-    RolModule, // RolModule provee RolService
+    RolModule,
     CategoriaModule,
     AutorModule,
     LibroModule,
@@ -45,12 +48,16 @@ import { RolService } from './rol/rol.service';
     DevolucionModule,
   ],
   controllers: [AppController],
-  providers: [AppService], // Eliminar RolService de providers
+  providers: [AppService],
 })
-export class AppModule implements OnModuleInit {
+export class AppModule implements NestModule, OnModuleInit {
   constructor(private readonly rolService: RolService) {}
 
   async onModuleInit() {
     await this.rolService.ensureDefaultRoles();
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    // No aplicar ningún middleware aquí
   }
 }
