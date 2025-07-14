@@ -29,7 +29,7 @@ export class AppLogger implements LoggerService {
           level: 'error',
         }),
         new MongoTransport({
-            mongoUri: configService.get('MONGO_URI') || 'mongodb+srv://ijalvarez:NY8ycD3BB4GQ7jwK@cluster0.gwreou4.mongodb.net/logs_biblioteca?retryWrites=true&w=majority',
+          mongoUri: configService.get('MONGO_URI') || 'mongodb+srv://ijalvarez:NY8ycD3BB4GQ7jwK@cluster0.gwreou4.mongodb.net/logs_biblioteca?retryWrites=true&w=majority',
         }),
       ],
     });
@@ -39,8 +39,8 @@ export class AppLogger implements LoggerService {
     this.logger.info(message);
   }
 
-  error(message: string, trace?: string) {
-    this.logger.error(`${message} ${trace || ''}`);
+  error(message: string, meta?: any) {
+    this.logger.error(message, meta);
   }
 
   warn(message: string) {

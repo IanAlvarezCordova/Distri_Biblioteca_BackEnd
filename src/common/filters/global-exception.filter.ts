@@ -40,12 +40,11 @@ import {
         url: request.url,
         method: request.method,
         statusCode: status,
+        stack: exception instanceof Error ? exception.stack : '',
       };
   
-      this.logger.error(
-        JSON.stringify(logMessage),
-        exception instanceof Error ? exception.stack : '',
-      );
+      // Pasar el mensaje como string y los metadatos como objeto
+      this.logger.error(logMessage.message, logMessage);
   
       response.status(status).json({
         statusCode: status,
