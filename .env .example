@@ -1,8 +1,11 @@
+#renombrar el archivo .env.example a .env
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=123
+POSTGRES_PASSWORD=admin
 POSTGRES_DATABASE=bd-biblioteca
 POSTGRES_SSL=false
-JWT_SECRET= "987654321"
-#renombrar el archivo .env.example a .env
+JWT_SECRET="987654321" 
+PORT=3000
+#MONGO_URI=mongodb://localhost:27017/logs_biblioteca
+MONGO_URI=mongodb+srv://ijalvarez:NY8ycD3BB4GQ7jwK@cluster0.gwreou4.mongodb.net/logs_biblioteca?retryWrites=true&w=majority
