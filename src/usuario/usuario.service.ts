@@ -1,9 +1,11 @@
+//File: src/usuario/usuario.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Usuario } from "./usuario.entity";
 import { Rol } from "../rol/rol.entity";
 import { Role } from "src/common/enum/rol.enum";
+import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
@@ -88,6 +90,10 @@ export class UsuarioService {
     // Metodo para actualizar un usuario
     async update(id: number, data: Partial<Usuario>): Promise<Usuario> {
         const usuario = await this.findOne(id); // Esto lanza NotFoundException si no existe
+        // Si viene nueva contraseña, hashearla
+        if (data.password) {
+            data.password = await bcrypt.hash(data.password, 8);
+        }
         Object.assign(usuario, data);
         return await this.usuarioRepository.save(usuario);
       }

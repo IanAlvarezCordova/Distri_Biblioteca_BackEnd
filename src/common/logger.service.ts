@@ -1,30 +1,35 @@
 // src/common/logger.service.ts
 import { Injectable, LoggerService } from '@nestjs/common';
 import { createLogger, format, transports } from 'winston';
-import * as DailyRotateFile from 'winston-daily-rotate-file'; // Importar directamente
+import * as DailyRotateFile from 'winston-daily-rotate-file';
+import { MongoTransport } from './mongo-transport';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppLogger implements LoggerService {
   private logger;
 
-  constructor() {
+  constructor(configService: ConfigService) {
     this.logger = createLogger({
-      level: 'silly', // Nivel más bajo para capturar todo
+      level: 'silly',
       format: format.combine(
         format.timestamp(),
         format.printf(({ timestamp, level, message }) => `${timestamp} [${level.toUpperCase()}] : ${message}`)
       ),
       transports: [
-        new transports.Console(), // Mostrar logs en consola
+        new transports.Console(),
         new DailyRotateFile({
-          filename: 'logs/aplicacion-%DATE%.log', // Archivos rotativos
+          filename: 'logs/aplicacion-%DATE%.log',
           datePattern: 'YYYY-MM-DD',
-          maxSize: '20m', // Tamaño máximo por archivo
-          maxFiles: '14d', // Mantener logs por 14 días
+          maxSize: '20m',
+          maxFiles: '14d',
         }),
         new transports.File({
-          filename: 'logs/error.log', // Archivo específico para errores
+          filename: 'logs/error.log',
           level: 'error',
+        }),
+        new MongoTransport({
+            mongoUri: configService.get('MONGO_URI') || 'mongodb+srv://ijalvarez:NY8ycD3BB4GQ7jwK@cluster0.gwreou4.mongodb.net/logs_biblioteca?retryWrites=true&w=majority',
         }),
       ],
     });

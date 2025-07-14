@@ -1,3 +1,4 @@
+//File: src/usuario/usuario.controller.ts
 import { Controller, Delete, Get, Param, Post, Put, Body, ParseIntPipe, HttpCode, UnauthorizedException } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { Usuario } from './usuario.entity';
@@ -49,11 +50,6 @@ export class UsuarioController {
     if (activeUser.email !== usuario.email && !activeUser.roles.includes(Role.ADMIN)) {
       this.logger.warn(`Intento no autorizado de actualizar usuario ID ${id} por ${activeUser.email}`); // Log de advertencia
       throw new UnauthorizedException('No tienes permisos para actualizar este perfil');
-    }
-
-    // Si hay cambio de contraseña, se encripta
-    if (data.password) {
-      data.password = await bcrypt.hash(data.password, 8);
     }
 
     const updatedUser = await this.usuarioService.update(id, data);
