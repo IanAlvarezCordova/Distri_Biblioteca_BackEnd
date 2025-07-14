@@ -28,7 +28,6 @@ import {
           ? exception.getResponse()
           : 'Error interno del servidor';
   
-      // Para errores de validación: extraer array de mensajes
       let errorMessage: string | string[] = 'Error interno del servidor';
       if (typeof message === 'object' && message !== null && 'message' in message) {
         errorMessage = (message as any).message;
@@ -36,10 +35,15 @@ import {
         errorMessage = message;
       }
   
+      const logMessage = {
+        message: typeof errorMessage === 'string' ? errorMessage : errorMessage.join(', '),
+        url: request.url,
+        method: request.method,
+        statusCode: status,
+      };
+  
       this.logger.error(
-        `Error en ${request.method} ${request.url}: ${
-          typeof errorMessage === 'string' ? errorMessage : errorMessage.join(', ')
-        }`,
+        JSON.stringify(logMessage),
         exception instanceof Error ? exception.stack : '',
       );
   
@@ -51,4 +55,3 @@ import {
       });
     }
   }
-  
