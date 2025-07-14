@@ -15,12 +15,28 @@ const logSchema = new Schema({
 const LogModel = model('Log', logSchema);
 
 export class MongoTransport extends winstonTransport {
+  private isConnected = false;
+
+
   constructor(opts: { mongoUri: string }) {
     super();
-    connect(opts.mongoUri).catch((err) => console.error('Error conectando a MongoDB:', err));
+    connect(opts.mongoUri)
+      .then(() => {
+        this.isConnected = true;
+        console.log('MongoDB conectado para logging');
+      })
+      .catch((err) => console.error('Error conectando a MongoDB:', err));
   }
 
+  
+
   async log(info: any, callback: () => void) {
+
+    if (!this.isConnected) {
+      console.warn('Aún no conectado a MongoDB. Log ignorado temporalmente.');
+      return callback(); // Evitar cuelgues
+    }
+    
     try {
       let logData = {
         timestamp: info.timestamp,
@@ -55,10 +71,9 @@ export class MongoTransport extends winstonTransport {
       }
 
       await LogModel.create(logData);
-      callback();
     } catch (err) {
       console.error('Error al guardar log en MongoDB:', err);
-      callback();
+    }
+    callback();
     }
   }
-}
