@@ -29,13 +29,17 @@ export class PrestamoController {
         return await this.prestamoService.findByUsuario(id);
     }
 
-    @Auth(Role.USER)
-    @Post()
-    async create(@Body() prestamo: Partial<Prestamo>, @ActiveUser() activeUser: UserActiveInterface): Promise<Prestamo> {
-        const nuevoPrestamo = await this.prestamoService.create(prestamo, activeUser.id);
-        this.logger.log(`Nuevo préstamo creado por usuario ID ${activeUser.id}`);
-        return nuevoPrestamo;
-    }
+   @Auth(Role.USER)
+@Post()
+async create(
+    @Body() prestamo: Partial<Prestamo> & { usuarioId?: number },
+    @ActiveUser() activeUser: UserActiveInterface,
+): Promise<Prestamo> {
+    const isAdmin = activeUser.roles.includes(Role.ADMIN);
+    const nuevoPrestamo = await this.prestamoService.create(prestamo, activeUser.id, isAdmin, prestamo.usuarioId);
+    this.logger.log(`Nuevo préstamo creado por usuario ID ${activeUser.id}`);
+    return nuevoPrestamo;
+}
 
     // @Auth(Role.ADMIN)
     @Put(':id')
