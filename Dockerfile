@@ -1,23 +1,25 @@
-# Usa una imagen base oficial de Node.js
-FROM node:18-alpine
+# Dockerfile
 
-# Establece el directorio de trabajo dentro del contenedor
-WORKDIR /usr/src/app
+FROM node:18 as builder
 
-# Copia los archivos de dependencias primero para aprovechar la caché
+WORKDIR /app
+
 COPY package*.json ./
-
-# Instala solo dependencias de producción
 RUN npm install
 
-# Copia el resto de tu aplicación al contenedor
 COPY . .
-
-# Compila el proyecto NestJS (usa tsconfig)
 RUN npm run build
 
-# Expone el puerto que usará la app (Render detecta esto automáticamente)
+# --- Runtime image ---
+FROM node:18
+
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+
+RUN npm install --only=production
+
 EXPOSE 3000
 
-# Comando que ejecuta la app en modo producción
 CMD ["npm", "run", "start:prod"]
