@@ -40,10 +40,11 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
   app.enableCors({
-    origin: ['*'],
+    origin: ['http://localhost:5173', 'https://enlace-produccion-frontend'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
