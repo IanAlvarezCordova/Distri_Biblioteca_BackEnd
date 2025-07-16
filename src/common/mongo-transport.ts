@@ -69,6 +69,17 @@ export class MongoTransport extends winstonTransport {
           logData.statusCode = parseInt(parts[3], 10); // Código de estado (ej. 200)
         }
       }
+
+      // Ignorar logs de OPTIONS, 304, y recursos estáticos
+    if (
+      logData.method === 'OPTIONS' ||
+      logData.statusCode === 304 ||
+      logData.url.includes('favicon') ||
+      logData.url.includes('.png') ||
+      logData.url.includes('.jpg')
+    ) {
+      return callback();
+    }
   
       await LogModel.create(logData);
     } catch (err) {

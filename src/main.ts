@@ -11,22 +11,25 @@ async function bootstrap() {
   const logger = app.get(AppLogger);
 
   app.use(
-    morgan((tokens, req, res) => {
-      const ip = requestIp.getClientIp(req) || 'IP_DESCONOCIDA';
-
-      return [
-        `[${ip}]`, // IP real
-        tokens.method(req, res),
-        tokens.url(req, res),
-        tokens.status(req, res),
-        tokens['response-time'](req, res) + 'ms',
-        `"${tokens['user-agent'](req, res)}"`,
-      ].join(' ');
-    }, {
-      stream: {
-        write: (message: string) => logger.log(message.trim()),
+    morgan(
+      (tokens, req, res) => {
+        const ip = requestIp.getClientIp(req) || 'IP_DESCONOCIDA';
+        return [
+          `[${ip}]`,
+          tokens.method(req, res),
+          tokens.url(req, res),
+          tokens.status(req, res),
+          tokens['response-time'](req, res) + 'ms',
+          `"${tokens['user-agent'](req, res)}"`,
+        ].join(' ');
       },
-    }),
+      {
+        stream: {
+          write: (message: string) => logger.log(message.trim()),
+        },
+        skip: (req, res) => req.method === 'OPTIONS' || res.statusCode === 304, // Ignorar OPTIONS y 304
+      },
+    ),
   );
 
   app.useGlobalPipes(
