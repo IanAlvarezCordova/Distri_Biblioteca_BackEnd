@@ -15,10 +15,10 @@ export class AutorController {
 
 @Get()
 async findAll(): Promise<Autor[]> {
-  this.logger.log('Solicitud para obtener todos los autores');
+  
   try {
     const autores = await this.autorService.findAll();
-    this.logger.log(`Encontrados ${autores.length} autores`);
+    
     return autores;
   } catch (error) {
     this.logger.error(`Error al obtener autores: ${error.message}`, error.stack);

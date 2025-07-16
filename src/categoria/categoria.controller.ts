@@ -14,7 +14,7 @@ export class CategoriaController {
 
     @Get()
     async findAll(): Promise<Categoria[]> {
-        this.logger.log('Obteniendo todas las categorías');
+        
         return await this.categoriaService.findAll();
     }
 

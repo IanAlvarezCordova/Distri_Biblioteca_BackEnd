@@ -27,6 +27,7 @@ export class DevolucionController {
     @Auth(Role.USER)
     @Get()
     async findAll() {
+        
         return await this.devolucionService.findAll();
     }
 

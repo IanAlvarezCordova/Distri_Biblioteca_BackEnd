@@ -5,12 +5,18 @@ import { Body } from "@nestjs/common";
 import { Put } from "@nestjs/common";
 import { Auth } from "src/auth/decorators/auth.decorator";
 import { Role } from "src/common/enum/rol.enum";
+import { AppLogger } from "src/common/logger.service";
 
 
 
 @Controller('rol')
 export class RolController {
-    constructor(private readonly rolService: RolService){}
+    constructor(
+        private readonly rolService: RolService,
+        private readonly logger: AppLogger,
+        ){
+
+    }
 
     //meotodo get
     @Get()
@@ -25,6 +31,7 @@ export class RolController {
 
     @Post()
     create(@Body() rol: Partial<Rol>): Promise<Rol>{
+        this.logger.log(`Creando nuevo rol: ${rol.nombre}`);
         return this.rolService.create(rol);
     }
 
