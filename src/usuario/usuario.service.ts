@@ -55,7 +55,6 @@ export class UsuarioService {
     }
     
    
-
     // Metodo para crear el username
     /*
     Primera letra del nombres y apellido si se repite el username aumentamos un numero   

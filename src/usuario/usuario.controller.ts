@@ -21,8 +21,8 @@ export class UsuarioController {
     return await this.usuarioService.findAll();
   }
 
-  // Obtener un usuario por ID (solo admin)
-  @Auth(Role.ADMIN)
+  // Obtener un usuario por ID solo si es el dueño o un admin
+  @Auth(Role.USER)
   @Get(':id')
   findBy(@Param('id') id: number): Promise<Usuario | null> {
     return this.usuarioService.findOne(id);

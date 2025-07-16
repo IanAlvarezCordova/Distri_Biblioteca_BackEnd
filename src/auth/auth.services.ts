@@ -36,13 +36,13 @@ export class AuthService {
         const user = await this.usuarioService.findByEmailWithPassword(email);
         if (!user) {
             this.logger.warn(`Intento de login fallido: usuario con email ${email} no encontrado`);
-            throw new UnauthorizedException('Email Incorrecto o no existe');
+            throw new UnauthorizedException('El email no esta registrado');
           }
         // Verificar la contraseña
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             this.logger.warn(`Intento de login fallido: contraseña incorrecta para ${email}`);
-            throw new UnauthorizedException('Credenciales Incorrectas');
+            throw new UnauthorizedException('La contraseña es incorrecta');
           }
 
            // Actualizar ultimo_acceso

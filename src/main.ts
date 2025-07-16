@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { AppLogger } from './common/logger.service';
 import * as morgan from 'morgan';
-const requestIp = require('request-ip'); // ✅ Importar así si da error con import
+const requestIp = require('request-ip');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
