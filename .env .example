@@ -1,5 +1,5 @@
 #renombrar el archivo .env.example a .env
-POSTGRES_HOST=localhost
+POSTGRES_HOST=localhost # para docker usar db sino localhost
 POSTGRES_PORT=5432
 POSTGRES_USERNAME=postgres
 POSTGRES_PASSWORD=admin
