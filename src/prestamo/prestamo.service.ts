@@ -45,24 +45,25 @@ export class PrestamoService {
         });
     }
 
-    async create(prestamo: Partial<Prestamo>, usuarioId: number): Promise<Prestamo> {
-        const usuario = await this.usuarioRepository.findOne({ where: { id: usuarioId } });
-        if (!usuario) {
-            throw new NotFoundException(`Usuario con id ${usuarioId} no encontrado`);
-        }
-        const libro = await this.libroRepository.findOne({ where: { id: prestamo.libro?.id } });
-        if (!libro) {
-            throw new NotFoundException(`Libro con id ${prestamo.libro?.id} no encontrado`);
-        }
-        if (!libro.disponible) {
-            throw new BadRequestException(`El libro con id ${prestamo.libro?.id} no está disponible`);
-        }
-        libro.disponible = false;
-        await this.libroRepository.save(libro);
-        const nuevoPrestamo = this.prestamoRepository.create({ ...prestamo, usuario, libro });
-        return await this.prestamoRepository.save(nuevoPrestamo);
-        
+   async create(prestamo: Partial<Prestamo>, usuarioId: number, isAdmin: boolean, targetUsuarioId?: number): Promise<Prestamo> {
+    const usuario = isAdmin && targetUsuarioId
+        ? await this.usuarioRepository.findOne({ where: { id: targetUsuarioId } })
+        : await this.usuarioRepository.findOne({ where: { id: usuarioId } });
+    if (!usuario) {
+        throw new NotFoundException(`Usuario con id ${isAdmin && targetUsuarioId ? targetUsuarioId : usuarioId} no encontrado`);
     }
+    const libro = await this.libroRepository.findOne({ where: { id: prestamo.libro?.id } });
+    if (!libro) {
+        throw new NotFoundException(`Libro con id ${prestamo.libro?.id} no encontrado`);
+    }
+    if (!libro.disponible) {
+        throw new BadRequestException(`El libro con id ${prestamo.libro?.id} no está disponible`);
+    }
+    libro.disponible = false;
+    await this.libroRepository.save(libro);
+    const nuevoPrestamo = this.prestamoRepository.create({ ...prestamo, usuario, libro });
+    return await this.prestamoRepository.save(nuevoPrestamo);
+}
 
     async update(id: number, prestamoData: Partial<Prestamo>): Promise<Prestamo> {
         const existingPrestamo = await this.findOne(id);

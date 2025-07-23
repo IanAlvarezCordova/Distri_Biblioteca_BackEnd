@@ -4,16 +4,16 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { Role } from '../common/enum/rol.enum';
 import { ActiveUser } from '../common/decorators/active-user.decorator';
 import { UserActiveInterface } from '../common/interfaces/user-active.interface';
-import { AppLogger } from '../common/logger.service'; // Agregar
+import { AppLogger } from '../common/logger.service';
 
 @Controller('devoluciones')
 export class DevolucionController {
     constructor(
         private readonly devolucionService: DevolucionService,
-        private readonly logger: AppLogger, // Inyectar el logger
+        private readonly logger: AppLogger,
     ) {}
 
-    @Auth(Role.USER)
+    @Auth(Role.ADMIN) // Restrict to admins only
     @Post()
     async create(
         @Body('prestamoId', ParseIntPipe) prestamoId: number,
@@ -24,20 +24,19 @@ export class DevolucionController {
         return devolucion;
     }
 
-    @Auth(Role.USER)
+    @Auth(Role.ADMIN) // Restrict to admins only
     @Get()
     async findAll() {
-        
         return await this.devolucionService.findAll();
     }
 
-    @Auth(Role.USER)
+    @Auth(Role.ADMIN) // Restrict to admins only
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number) {
         return await this.devolucionService.findOne(id);
     }
 
-    @Auth(Role.ADMIN) //solo administradores pueden acceder a estadísticas
+    @Auth(Role.ADMIN)
     @Get('stats/mensuales')
     async getDevolucionesMensuales() {
         return await this.devolucionService.getDevolucionesMensuales();
