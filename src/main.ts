@@ -43,7 +43,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
   app.enableCors({
-    origin: ['http://localhost:5173', 'https://enlace-produccion-frontend'],
+    origin: ['http://localhost:5173', 'https://distri-biblioteca-front-el18kkpb7-ians-projects-d721d4c3.vercel.app'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
