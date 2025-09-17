@@ -13,7 +13,7 @@ export class DevolucionController {
         private readonly logger: AppLogger,
     ) {}
 
-    @Auth(Role.ADMIN) // Restrict to admins only
+    @Auth(Role.USER) // Admin
     @Post()
     async create(
         @Body('prestamoId', ParseIntPipe) prestamoId: number,
@@ -24,19 +24,19 @@ export class DevolucionController {
         return devolucion;
     }
 
-    @Auth(Role.ADMIN) // Restrict to admins only
+    @Auth(Role.USER) // Restrict to admins only
     @Get()
     async findAll() {
         return await this.devolucionService.findAll();
     }
 
-    @Auth(Role.ADMIN) // Restrict to admins only
+    @Auth(Role.USER) // Restrict to admins only
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number) {
         return await this.devolucionService.findOne(id);
     }
 
-    @Auth(Role.ADMIN)
+    @Auth(Role.USER)
     @Get('stats/mensuales')
     async getDevolucionesMensuales() {
         return await this.devolucionService.getDevolucionesMensuales();
